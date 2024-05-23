@@ -56,6 +56,7 @@ static constexpr bool k_bUseCursorPlane = false;
 
 extern int g_nPreferredOutputWidth;
 extern int g_nPreferredOutputHeight;
+extern bool g_bDisableInFenceFd;
 
 gamescope::ConVar<bool> cv_drm_single_plane_optimizations( "drm_single_plane_optimizations", true, "Whether or not to enable optimizations for single plane usage." );
 gamescope::ConVar<bool> cv_drm_debug_disable_shaper_and_3dlut( "drm_debug_disable_shaper_and_3dlut", false, "Shaper + 3DLUT chicken bit. (Force disable/DEFAULT, no logic change)" );
@@ -1132,7 +1133,9 @@ bool init_drm(struct drm_t *drm, int width, int height, int refresh)
 
 	uint64_t cap;
 	g_bSupportsSyncObjs = drmGetCap(drm->fd, DRM_CAP_SYNCOBJ, &cap) == 0 && cap != 0;
-	if ( g_bSupportsSyncObjs ) {
+	if ( g_bDisableInFenceFd ) {
+		drm_log.errorf("Disabling use of IN_FENCE_FD");
+	} else if ( g_bSupportsSyncObjs ) {
 		int err = drmSyncobjCreate(drm->fd, DRM_SYNCOBJ_CREATE_SIGNALED, &g_uAlwaysSignalledSyncobj);
 		if (err < 0) {
 			drm_log.errorf("Failed to create dummy signalled syncobj");

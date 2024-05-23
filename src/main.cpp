@@ -82,6 +82,7 @@ const struct option *gamescope_options = (struct option[]){
 	{ "immediate-flips", no_argument, nullptr, 0 },
 	{ "adaptive-sync", no_argument, nullptr, 0 },
 	{ "framerate-limit", required_argument, nullptr, 0 },
+	{ "disable-in-fence-fd", no_argument, nullptr, 0 },
 
 	// openvr options
 #if HAVE_OPENVR
@@ -206,6 +207,7 @@ const char usage[] =
 	"  --generate-drm-mode            DRM mode generation algorithm (cvt, fixed)\n"
 	"  --immediate-flips              Enable immediate flips, may result in tearing\n"
 	"  --adaptive-sync                Enable adaptive sync if available (variable rate refresh)\n"
+	"  --disable-in-fence-fd          Do not use the IN_FENCE_FD DRM plane property\n"
 	"\n"
 #if HAVE_OPENVR
 	"VR mode options:\n"
@@ -587,6 +589,7 @@ bool g_bExposeWayland = false;
 const char *g_sOutputName = nullptr;
 bool g_bDebugLayers = false;
 bool g_bForceDisableColorMgmt = false;
+bool g_bDisableInFenceFd = false;
 
 // This will go away when we remove the getopt stuff from vr session.
 // For now...
@@ -701,6 +704,8 @@ int main(int argc, char **argv)
 					eCurrentBackend = parse_backend_name( optarg );
 				} else if (strcmp(opt_name, "cursor-scale-height") == 0) {
 					g_nCursorScaleHeight = atoi(optarg);
+				} else if (strcmp(opt_name, "disable-in-fence-fd") == 0) {
+					g_bDisableInFenceFd = true;
 				}
 				break;
 			case '?':
